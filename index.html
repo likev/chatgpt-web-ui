@@ -7,100 +7,81 @@
 
     <meta charset="utf-8">
     <meta content="ChatAI" name="description" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>ChatAI</title>
 
     <style>
+        .max_width_body {
+            max-width: 800px !important;
+        }
 
+        #chat, #chat .card-body {
+            flex-basis: 120px;
+            min-height: 120px;
+            overflow: auto;
+        }
     </style>
 
 </head>
 
 <body>
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class='col-4 left'>
+    <div class="container vh-100 max_width_body">
+        <div class='d-flex h-100 flex-column'>
+            <div class="row flex-grow-0 flex-shrink-0 py-3">
+
                 <header>
                     <h1>ChatAI</h1>
                 </header>
 
                 <div class='row'>
-                    <div class="col-12 col-xl-6">
-                        <input class="form-control" type="text" id='basetime' readonly>
+
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupSelect01">选择角色</label>
+                        <select class="form-select" id="inputGroupSelect01">
+                            <option value="bing-ai">BingAI</option>
+                            <option value="write">写作</option>
+                            <option value="translate">翻译</option>
+                        </select>
                     </div>
 
-                    <div class="mb-3 col-12 col-xl-6">
-                        <button id='prevtime' class="btn btn-primary" type="button">前一时次</button>
-                        <button id='nexttime' class="btn btn-primary" type="button">后一时次</button>
-                    </div>
-                </div>
-
-                <select id="select-products" class="form-select">
-
-                    <option value="medium-uv-rh">风场相对湿度</option>
-                    <option value="medium-uv-z">风场位势高度</option>
-                    <option value="medium-wind-10wg">海平面气压10m阵风</option>
-
-                    <option value="medium-rain-acc">累积降水</option>
-                    <option value="medium-rain-rate">降水率</option>
-                    <option value="medium-precipitation-type">降水类型</option>
-                    <option value="medium-visibility">能见度</option>
-
-                    <option value="medium-divergence">散度</option>
-                    <option value="medium-shear">0-6风切及最不稳定CAPE</option>
-
-                    <option value="medium-vorticity">涡度</option>
-                    <option value="medium-pv">位涡</option>
-
-                    <option value="opencharts_meteogram">集合预报温度降水</option>
-                    <option value="opencharts_vertical-profile-meteogram">集合预报廓线</option>
-                </select>
-
-                <div class="list-group" id='levels'>
-                    <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-                        The current link item
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
-                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
-                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
                 </div>
 
             </div>
 
-            <div id=result class='col-8 right'>
+
+            <div id="chat" class="row flex-grow-1 flex-shrink-1 py-3 px-3">
                 <div class="card">
-                    <div class="card-body">
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination ms-5 mt-3 mb-0" id='validdates'>
-                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                            </ul>
-                        </nav>
-                        <div class="text-center">
-                            <div id='chart-spinner' class="spinner-border text-success m-3" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+                    <div id="chat-content" class="card-body">
+                        <div class="ask">This is some text within a card body.</div>
+                        <div class="answer">This is some text within a card body.</div>
+                        <div class="ask">This is some text within a card body.</div>
+                        <div class="answer">This is some text within a card body.</div>
                     </div>
-                    <img src="#" class="chart card-img-bottom" alt="">
                 </div>
             </div>
 
+            <div class="row flex-grow-0 flex-shrink-0">
+                <div class="input-group">
+                    <span class="input-group-text">输入</span>
+                    <textarea id="ask-content" class="form-control" aria-label="With textarea"></textarea>
+                    <button id="submit-ask" class="btn btn-primary btn-outline-secondary" type="button">提交</button>
+                </div>
+            </div>
+            <!--
+        <footer>
+            <h2>说明：</h2>
+            <ol>
+                <li>此网站采用最新的 Web 技术，请使用最新版 Chrome 或 Firefox 或 Edge 浏览器访问</li>
+                <li>AI 产品来自 Microsoft Bing</li>
+            </ol>
+        </footer>
+        -->
         </div>
-
     </div>
 
-    <footer>
-        <h2>说明：</h2>
-        <ol>
-            <li>此网站采用最新的 Web 技术，请使用最新版 Chrome 或 Firefox 或 Edge 浏览器访问</li>
-            <li>所有图片产品版权归 ECMWF</li>
-        </ol>
-    </footer>
+
 
     <script type="module" src='./src/main.js'>
 
