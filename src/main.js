@@ -3,15 +3,19 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 
 import jquery from "jquery/src/jquery.js";
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import moment from 'moment';
+//import moment from 'moment';
 
 window.$ = jquery;
 window.bootstrap = bootstrap;
 
 import config from './config';
-import { fixedEncodeURIComponent, getUTCTimeStr } from "./utils"
+//import { fixedEncodeURIComponent, getUTCTimeStr } from "./utils"
 
 let promot = "";
+$('#select-ai-role').on('change', function(){
+    promot = config.roles[this.value];
+})
+
 let conversationInfo = {};
 
 async function getAnswer(fetch_body) {
@@ -55,6 +59,9 @@ async function getAnswer(fetch_body) {
 }
 
 $('#submit-ask').on('click', async function(){
+    //prevent double click
+    $('#submit-ask').attr('disabled', 'disabled');
+
     const ask = $("#ask-content").val().trim();
     let fetch_body = {"message": promot + ask};
     
@@ -62,10 +69,26 @@ $('#submit-ask').on('click', async function(){
     //<div class="answer">This is some text within a card body.</div>
     $('#chat-content').append(`<div class="ask">${ask}</div>`);
 
-    let result = await getAnswer(fetch_body);
+    try{
+        let result = await getAnswer(fetch_body);
     
-    let {response} = result;
+        let {response} = result;
+    
+        $('#chat-content').append(`<div class="answer">${response}</div>`);
 
-    $('#chat-content').append(`<div class="answer">${response}</div>`);
+        $("#ask-content").val('');
+    }catch{
+        $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
+    }finally {
+        $('#submit-ask').removeAttr('disabled');
+    }
 
+})
+
+//document is ready
+$(function(){
+    $('#chat-content').empty();
+
+    $("#ask-content").val('介绍一下你自己');
+    $('#submit-ask').trigger('click');
 })

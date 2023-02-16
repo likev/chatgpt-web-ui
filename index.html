@@ -21,6 +21,16 @@
             min-height: 120px;
             overflow: auto;
         }
+
+        #chat .ask {
+            text-align: right;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        #chat .answer {
+            margin-bottom: 20px;
+        }
     </style>
 
 </head>
@@ -29,7 +39,7 @@
 
     <div class="container vh-100 max_width_body">
         <div class='d-flex h-100 flex-column'>
-            <div class="row flex-grow-0 flex-shrink-0 py-3">
+            <div class="row flex-grow-0 flex-shrink-0 pt-3">
 
                 <header>
                     <h1>ChatAI</h1>
@@ -37,9 +47,9 @@
 
                 <div class='row'>
 
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="inputGroupSelect01">选择角色</label>
-                        <select class="form-select" id="inputGroupSelect01">
+                    <div class="input-group">
+                        <label class="input-group-text" for="select-ai-role">选择角色</label>
+                        <select class="form-select" id="select-ai-role">
                             <option value="bing-ai">BingAI</option>
                             <option value="write">写作</option>
                             <option value="translate">翻译</option>
@@ -52,8 +62,8 @@
 
 
             <div id="chat" class="row flex-grow-1 flex-shrink-1 py-3 px-3">
-                <div class="card">
-                    <div id="chat-content" class="card-body">
+                <div class="card px-0">
+                    <div id="chat-content" class="card-body px-1">
                         <div class="ask">This is some text within a card body.</div>
                         <div class="answer">This is some text within a card body.</div>
                         <div class="ask">This is some text within a card body.</div>
@@ -62,11 +72,11 @@
                 </div>
             </div>
 
-            <div class="row flex-grow-0 flex-shrink-0">
+            <div class="row flex-grow-0 flex-shrink-0 mb-3">
                 <div class="input-group">
                     <span class="input-group-text">输入</span>
                     <textarea id="ask-content" class="form-control" aria-label="With textarea"></textarea>
-                    <button id="submit-ask" class="btn btn-primary btn-outline-secondary" type="button">提交</button>
+                    <button id="submit-ask" class="btn btn-primary btn-outline-secondary text-light" type="button">提交</button>
                 </div>
             </div>
             <!--
