@@ -110,6 +110,7 @@ async function submitAskSSE() {
 
         const controller = new AbortController();
         await fetchEventSource(config['BINGAI-PROXY'], {
+            //withCredentials: true,
             "headers": {
                 "content-type": "application/json; charset=utf-8",
             },
