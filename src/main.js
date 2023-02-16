@@ -72,11 +72,16 @@ $('#submit-ask').on('click', async function(){
     try{
         let result = await getAnswer(fetch_body);
     
-        let {response} = result;
-    
-        $('#chat-content').append(`<div class="answer">${response}</div>`);
+        let {response, error} = result;
 
-        $("#ask-content").val('');
+        if(error){
+            $('#chat-content').append(`<div class="alert alert-warning" role="alert">${error}</div>`);
+        }else{//success
+            $('#chat-content').append(`<div class="answer">${response}</div>`);
+
+            $("#ask-content").val('');
+        }
+        
     }catch{
         $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
     }finally {
