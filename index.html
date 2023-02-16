@@ -1,0 +1,110 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta charset="utf-8">
+    <meta content="ChatAI" name="description" />
+
+    <title>ChatAI</title>
+
+    <style>
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class='col-4 left'>
+                <header>
+                    <h1>ChatAI</h1>
+                </header>
+
+                <div class='row'>
+                    <div class="col-12 col-xl-6">
+                        <input class="form-control" type="text" id='basetime' readonly>
+                    </div>
+
+                    <div class="mb-3 col-12 col-xl-6">
+                        <button id='prevtime' class="btn btn-primary" type="button">前一时次</button>
+                        <button id='nexttime' class="btn btn-primary" type="button">后一时次</button>
+                    </div>
+                </div>
+
+                <select id="select-products" class="form-select">
+
+                    <option value="medium-uv-rh">风场相对湿度</option>
+                    <option value="medium-uv-z">风场位势高度</option>
+                    <option value="medium-wind-10wg">海平面气压10m阵风</option>
+
+                    <option value="medium-rain-acc">累积降水</option>
+                    <option value="medium-rain-rate">降水率</option>
+                    <option value="medium-precipitation-type">降水类型</option>
+                    <option value="medium-visibility">能见度</option>
+
+                    <option value="medium-divergence">散度</option>
+                    <option value="medium-shear">0-6风切及最不稳定CAPE</option>
+
+                    <option value="medium-vorticity">涡度</option>
+                    <option value="medium-pv">位涡</option>
+
+                    <option value="opencharts_meteogram">集合预报温度降水</option>
+                    <option value="opencharts_vertical-profile-meteogram">集合预报廓线</option>
+                </select>
+
+                <div class="list-group" id='levels'>
+                    <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                        The current link item
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
+                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                </div>
+
+            </div>
+
+            <div id=result class='col-8 right'>
+                <div class="card">
+                    <div class="card-body">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination ms-5 mt-3 mb-0" id='validdates'>
+                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                        <div class="text-center">
+                            <div id='chart-spinner' class="spinner-border text-success m-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="#" class="chart card-img-bottom" alt="">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer>
+        <h2>说明：</h2>
+        <ol>
+            <li>此网站采用最新的 Web 技术，请使用最新版 Chrome 或 Firefox 或 Edge 浏览器访问</li>
+            <li>所有图片产品版权归 ECMWF</li>
+        </ol>
+    </footer>
+
+    <script type="module" src='./src/main.js'>
+
+    </script>
+</body>
+
+</html>
