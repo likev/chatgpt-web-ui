@@ -4,6 +4,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import jquery from "jquery/src/jquery.js";
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //import moment from 'moment';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 window.$ = jquery;
 window.bootstrap = bootstrap;
@@ -12,7 +13,7 @@ import config from './config';
 //import { fixedEncodeURIComponent, getUTCTimeStr } from "./utils"
 
 let promot = "";
-$('#select-ai-role').on('change', function(){
+$('#select-ai-role').on('change', function () {
     promot = config.roles[this.value];
 })
 
@@ -24,7 +25,7 @@ async function getAnswer(fetch_body) {
         "headers": {
             "content-type": "application/json; charset=utf-8",
         },
-        "body": JSON.stringify({...conversationInfo, ...fetch_body}),
+        "body": JSON.stringify({ ...conversationInfo, ...fetch_body }),
         "method": "POST",
         "mode": "cors"
     });
@@ -52,46 +53,114 @@ async function getAnswer(fetch_body) {
     */
     let result = await f.json();
 
-    let {clientId, conversationId, conversationSignature, invocationId} = result;
-    conversationInfo = {clientId, conversationId, conversationSignature, invocationId};
+    let { clientId, conversationId, conversationSignature, invocationId } = result;
+    conversationInfo = { clientId, conversationId, conversationSignature, invocationId };
 
     return result;
 }
 
-$('#submit-ask').on('click', async function(){
+//
+async function submitAskNormal() {
     //prevent double click
     $('#submit-ask').attr('disabled', 'disabled');
 
     const ask = $("#ask-content").val().trim();
-    let fetch_body = {"message": promot + ask};
-    
+    let fetch_body = { "message": promot + ask };
+
     //<div class="ask">This is some text within a card body.</div>
     //<div class="answer">This is some text within a card body.</div>
     $('#chat-content').append(`<div class="ask">${ask}</div>`);
 
-    try{
+    try {
         let result = await getAnswer(fetch_body);
-    
-        let {response, error} = result;
 
-        if(error){
+        let { response, error } = result;
+
+        if (error) {
             $('#chat-content').append(`<div class="alert alert-warning" role="alert">${error}</div>`);
-        }else{//success
+        } else {//success
             $('#chat-content').append(`<div class="answer">${response}</div>`);
 
             $("#ask-content").val('');
         }
-        
-    }catch{
+
+    } catch (err) {
         $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
-    }finally {
+    } finally {
         $('#submit-ask').removeAttr('disabled');
     }
 
-})
+}
+
+//Using server-sent events
+async function submitAskSSE() {
+    //prevent double click
+    $('#submit-ask').attr('disabled', 'disabled');
+
+    const ask = $("#ask-content").val().trim();
+    let fetch_body = { "message": promot + ask };
+
+    $('#chat-content').append(`<div class="ask">${ask}</div>`);
+
+    let current_answer = $(`<div class="answer"></div>`)
+    $('#chat-content').append(current_answer);
+
+    try {
+        let reply = '';
+
+        const controller = new AbortController();
+        await fetchEventSource(config['BINGAI-PROXY'], {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+            },
+            "body": JSON.stringify({ ...conversationInfo, ...fetch_body, stream: true }),
+            "method": "POST",
+            //"mode": "cors",
+
+            signal: controller.signal,
+            onopen(response) {
+                if (response.status === 200) {
+                    return;
+                }
+                throw new Error(`Failed to send message. HTTP ${response.status} - ${response.statusText}`);
+            },
+            onclose() {
+                throw new Error(`Failed to send message. Server closed the connection unexpectedly.`);
+            },
+
+            onerror(message) {
+                console.error(JSON.parse(message.data).error); // There was an error communicating with ChatGPT.;
+            },
+
+            onmessage(message) {
+                // { data: 'Hello', event: '', id: '', retry: undefined }
+                if (message.data === '[DONE]') {
+                    controller.abort();
+
+                    console.log(reply);
+
+                    $("#ask-content").val('');
+                    return;
+                }
+
+                console.log(message);
+                reply += message.data;
+
+                current_answer.html(reply);
+            }
+
+        })
+    } catch (err) {
+        $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
+    } finally {
+        $('#submit-ask').removeAttr('disabled');
+    }
+}
+
+$('#submit-ask').on('click', submitAskSSE) //or $('#submit-ask').on('click', submitAskNormal)
 
 //document is ready
-$(function(){
+$(function () {
     $('#chat-content').empty();
 
     $("#ask-content").val('介绍一下你自己');

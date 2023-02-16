@@ -1,18 +1,18 @@
 {
   "name": "chatai",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"
   },
   "dependencies": {
-    "jquery": "github:jquery/jquery",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "bootstrap": "^5.0.2",
     "bootstrap-icons": "^1.5.0",
+    "jquery": "github:jquery/jquery",
     "moment": "^2.14.0"
   },
-
   "devDependencies": {
     "vite": "^2.6.4"
   }
