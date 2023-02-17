@@ -15,4 +15,5 @@ the static web files are under `dist`
 * "bootstrap" for CSS
 * "github:jquery/jquery" for DOM event
 * "@microsoft/fetch-event-source" for server send events
+* "marked" for Markdown -> HTML
 * "vite" for build

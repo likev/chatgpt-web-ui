@@ -5,6 +5,7 @@ import jquery from "jquery/src/jquery.js";
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //import moment from 'moment';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { marked } from 'marked';
 
 window.$ = jquery;
 window.bootstrap = bootstrap;
@@ -117,6 +118,7 @@ async function submitAskSSE() {
             "body": JSON.stringify({ ...conversationInfo, ...fetch_body, stream: true }),
             "method": "POST",
             //"mode": "cors",
+            openWhenHidden: true,
 
             signal: controller.signal,
             onopen(response) {
@@ -144,10 +146,30 @@ async function submitAskSSE() {
                     return;
                 }
 
+                if (message.event === 'result') {
+                    const result = JSON.parse(message.data);
+                    console.log(result);
+
+                    let { clientId, conversationId, conversationSignature, invocationId, details } = result;
+                    conversationInfo = { clientId, conversationId, conversationSignature, invocationId };
+
+                    let {suggestedResponses, spokenText, text, sourceAttributions, adaptiveCards} = details;
+                    let cards = adaptiveCards[0].body;
+                    let cardsHTML = '';
+                    for(let card of cards){
+                        if(card.type === "TextBlock"){
+                            cardsHTML += `<div class="AdaptiveCard TextBlock">${marked.parse(card.text)}</div>`;
+                        }
+                    }
+                    current_answer.html(`<div class="AdaptiveCards">${cardsHTML}</div>`);
+
+                    return;
+                }
+
                 console.log(message);
                 reply += message.data;
 
-                current_answer.html(reply);
+                current_answer.html(marked.parse(reply));
             }
 
         })
