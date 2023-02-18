@@ -111,16 +111,15 @@ async function submitAskPolling() {
         let UUID = self.crypto.randomUUID();
         //console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
 
-        getAnswer(UUID
-            , fetch_body);//first POST
+        getAnswer(UUID, fetch_body);//first POST
 
-        function onerror(message) {
-            console.error(JSON.parse(message.data).error); // There was an error communicating with ChatGPT.;
-        }
+        let lastID = 0, polling = true;
 
+        setTimeout(_ => {//stop polling if no response after 10s
+            if (lastID === 0) polling = false;
+        }, 10 * 1000)
 
-        let lastID = 0;
-        while (true) {
+        while (polling) {
             try {
                 let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}/${lastID}`, {
                     "mode": "cors"
@@ -129,15 +128,21 @@ async function submitAskPolling() {
                 let message = await f.json();
 
                 lastID = onmessage(message);
-                if (lastID === -1) break;
-            }catch(e){
-                break;
+                if (lastID === -1) polling = false;
+            } catch (e) {
+                polling = false;
             }
         }
 
         function onmessage(message) {
             if (message.event === 'error') {
-                onerror(message);
+                const error = JSON.parse(message.data);
+                console.error(error); // There was an error communicating with ChatGPT.;
+
+                if (error.code === 404) {
+                    return 0;//get maybe quicker than post
+                }
+
                 return -1;
             }
 
