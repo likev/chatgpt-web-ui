@@ -1,7 +1,7 @@
 const CONFIG = {
 
-    //"BINGAI-PROXY": "https://fragile-seal-cuff.cyclic.app/conversation",
-    "BINGAI-PROXY": "/conversation", //"http://127.0.0.1:3000/conversation",
+    "BINGAI-PROXY": "https://fragile-seal-cuff.cyclic.app/conversation",
+    //"BINGAI-PROXY": "/conversation", //"http://127.0.0.1:3000/conversation",
 
     roles: {
         "bing-ai": "",
