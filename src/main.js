@@ -18,8 +18,8 @@ $('#select-ai-role').on('change', function () {
     promot = config.roles[this.value];
 })
 
-let conversationInfo = {};
-const turnTimeout = 30, turnsCount = 0, resetTurns = 5;//every 5 turns reset conversationInfo;
+let conversationInfo = {}, turnsCount = 0;
+const turnTimeout = 30, resetTurns = 5;//every 5 turns reset conversationInfo;
 
 function prepareAnswer(UUID, fetch_body) {
 
