@@ -19,7 +19,7 @@ $('#select-ai-role').on('change', function () {
 })
 
 let conversationInfo = {};
-let turnsCount = 0, resetTurns = 5;//every 5 turns reset conversationInfo;
+const turnTimeout = 30, turnsCount = 0, resetTurns = 5;//every 5 turns reset conversationInfo;
 
 function prepareAnswer(UUID, fetch_body) {
 
@@ -55,13 +55,13 @@ async function submitAskPolling() {
 
         let lastID = 0, polling = true;
 
-        setTimeout(_ => {//stop polling if no response after 10s
+        setTimeout(_ => {//stop polling if no response after turnTimeout
             if (lastID === 0) polling = false;
-        }, 10 * 1000)
+        }, turnTimeout * 1000)
 
         while (polling) {
             try {
-                let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}/${lastID}`, {
+                let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}/${lastID}?_t=${performance.now()}`, {
                     "mode": "cors"
                 });
 
