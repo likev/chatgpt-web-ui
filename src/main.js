@@ -20,9 +20,9 @@ $('#select-ai-role').on('change', function () {
 
 let conversationInfo = {};
 
-async function getAnswer(fetch_body) {
+async function getAnswer(UUID, fetch_body) {
 
-    let f = await fetch(config['BINGAI-PROXY'], {
+    let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}`, {
         "headers": {
             "content-type": "application/json; charset=utf-8",
         },
@@ -94,12 +94,12 @@ async function submitAskNormal() {
 }
 
 //Using server-sent events
-async function submitAskSSE() {
+async function submitAskPolling() {
     //prevent double click
     $('#submit-ask').attr('disabled', 'disabled');
 
     const ask = $("#ask-content").val().trim();
-    let fetch_body = { "message": promot + ask };
+    let fetch_body = { "message": promot + ask, stream: true };
 
     $('#chat-content').append(`<div class="ask">${ask}</div>`);
 
@@ -108,71 +108,67 @@ async function submitAskSSE() {
 
     try {
         let reply = '';
+        let UUID = self.crypto.randomUUID();
+        //console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
 
-        const controller = new AbortController();
-        await fetchEventSource(config['BINGAI-PROXY'], {
-            //withCredentials: true,
-            "headers": {
-                "content-type": "application/json; charset=utf-8",
-            },
-            "body": JSON.stringify({ ...conversationInfo, ...fetch_body, stream: true }),
-            "method": "POST",
-            //"mode": "cors",
-            openWhenHidden: true,
+        getAnswer(UUID
+            , fetch_body);//first POST
 
-            signal: controller.signal,
-            onopen(response) {
-                if (response.status === 200) {
-                    return;
-                }
-                throw new Error(`Failed to send message. HTTP ${response.status} - ${response.statusText}`);
-            },
-            onclose() {
-                throw new Error(`Failed to send message. Server closed the connection unexpectedly.`);
-            },
+        function onerror(message) {
+            console.error(JSON.parse(message.data).error); // There was an error communicating with ChatGPT.;
+        }
 
-            onerror(message) {
-                console.error(JSON.parse(message.data).error); // There was an error communicating with ChatGPT.;
-            },
 
-            onmessage(message) {
-                // { data: 'Hello', event: '', id: '', retry: undefined }
-                if (message.data === '[DONE]') {
-                    controller.abort();
+        let lastID = 0;
+        while (true) {
+            try {
+                let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}/${lastID}`, {
+                    "mode": "cors"
+                });
 
-                    console.log(reply);
+                let message = await f.json();
 
-                    $("#ask-content").val('');
-                    return;
-                }
+                lastID = onmessage(message);
+                if (lastID === -1) break;
+            }catch(e){
+                break;
+            }
+        }
 
-                if (message.event === 'result') {
-                    const result = JSON.parse(message.data);
-                    console.log(result);
-
-                    let { clientId, conversationId, conversationSignature, invocationId, details } = result;
-                    conversationInfo = { clientId, conversationId, conversationSignature, invocationId };
-
-                    let {suggestedResponses, spokenText, text, sourceAttributions, adaptiveCards} = details;
-                    let cards = adaptiveCards[0].body;
-                    let cardsHTML = '';
-                    for(let card of cards){
-                        if(card.type === "TextBlock"){
-                            cardsHTML += `<div class="AdaptiveCard TextBlock">${marked.parse(card.text)}</div>`;
-                        }
-                    }
-                    current_answer.html(`<div class="AdaptiveCards">${cardsHTML}</div>`);
-
-                    return;
-                }
-
-                console.log(message);
-                reply += message.data;
-
-                current_answer.html(marked.parse(reply));
+        function onmessage(message) {
+            if (message.event === 'error') {
+                onerror(message);
+                return -1;
             }
 
-        })
+            if (message.event === 'result') {
+                const result = JSON.parse(message.data);
+                console.log(result);
+
+                let { clientId, conversationId, conversationSignature, invocationId, details } = result;
+                conversationInfo = { clientId, conversationId, conversationSignature, invocationId };
+
+                let { suggestedResponses, spokenText, text, sourceAttributions, adaptiveCards } = details;
+                let cards = adaptiveCards[0].body;
+                let cardsHTML = '';
+                for (let card of cards) {
+                    if (card.type === "TextBlock") {
+                        cardsHTML += `<div class="AdaptiveCard TextBlock">${marked.parse(card.text)}</div>`;
+                    }
+                }
+                current_answer.html(`<div class="AdaptiveCards">${cardsHTML}</div>`);
+
+                $("#ask-content").val('');
+                return -1;
+            }
+
+            console.log(message);
+            reply += message.data;
+
+            current_answer.html(marked.parse(reply));
+
+            return message.id;
+        }
     } catch (err) {
         $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
     } finally {
@@ -180,12 +176,12 @@ async function submitAskSSE() {
     }
 }
 
-$('#submit-ask').on('click', submitAskSSE) //or $('#submit-ask').on('click', submitAskNormal)
+$('#submit-ask').on('click', submitAskPolling) //or $('#submit-ask').on('click', submitAskNormal)
 
 //document is ready
 $(function () {
     $('#chat-content').empty();
 
     $("#ask-content").val('介绍一下你自己');
-    $('#submit-ask').trigger('click');
+    //$('#submit-ask').trigger('click');
 })
