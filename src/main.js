@@ -19,6 +19,7 @@ $('#select-ai-role').on('change', function () {
 })
 
 let conversationInfo = {};
+let turnsCount = 0, resetTurns = 5;//every 5 turns reset conversationInfo;
 
 async function getAnswer(UUID, fetch_body) {
 
@@ -152,6 +153,10 @@ async function submitAskPolling() {
 
                 let { clientId, conversationId, conversationSignature, invocationId, details } = result;
                 conversationInfo = { clientId, conversationId, conversationSignature, invocationId };
+
+                turnsCount++;
+
+                if (turnsCount % resetTurns === 0) conversationInfo = {};
 
                 let { suggestedResponses, spokenText, text, sourceAttributions, adaptiveCards } = details;
                 let cards = adaptiveCards[0].body;
