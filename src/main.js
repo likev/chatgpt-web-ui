@@ -21,9 +21,9 @@ $('#select-ai-role').on('change', function () {
 let conversationInfo = {};
 let turnsCount = 0, resetTurns = 5;//every 5 turns reset conversationInfo;
 
-async function getAnswer(UUID, fetch_body) {
+function prepareAnswer(UUID, fetch_body) {
 
-    let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}`, {
+    return fetch(`${config['BINGAI-PROXY']}/${UUID}`, {
         "headers": {
             "content-type": "application/json; charset=utf-8",
         },
@@ -31,67 +31,6 @@ async function getAnswer(UUID, fetch_body) {
         "method": "POST",
         "mode": "cors"
     });
-
-    /*
-    {
-    "message": "Hello, how are you today?",
-    "conversationId": "your-conversation-id (optional)",
-    "parentMessageId": "your-parent-message-id (optional, for `ChatGPTClient` only)",
-    "conversationSignature": "your-conversation-signature (optional, for `BingAIClient` only)",
-    "clientId": "your-client-id (optional, for `BingAIClient` only)",
-    "invocationId": "your-invocation-id (optional, for `BingAIClient` only)",
-}
-
-// HTTP/1.1 200 OK
-{
-    "response": "I'm doing well, thank you! How are you?",
-    "conversationId": "your-conversation-id",
-    "messageId": "response-message-id (for `ChatGPTClient` only)",
-    "conversationSignature": "your-conversation-signature (for `BingAIClient` only)",
-    "clientId": "your-client-id (for `BingAIClient` only)",
-    "invocationId": "your-invocation-id (for `BingAIClient` only - pass this new value back into subsequent requests as-is)",
-    "details": "additional details about the AI's response (for `BingAIClient` only)"
-}
-    */
-    let result = await f.json();
-
-    let { clientId, conversationId, conversationSignature, invocationId } = result;
-    conversationInfo = { clientId, conversationId, conversationSignature, invocationId };
-
-    return result;
-}
-
-//
-async function submitAskNormal() {
-    //prevent double click
-    $('#submit-ask').attr('disabled', 'disabled');
-
-    const ask = $("#ask-content").val().trim();
-    let fetch_body = { "message": promot + ask };
-
-    //<div class="ask">This is some text within a card body.</div>
-    //<div class="answer">This is some text within a card body.</div>
-    $('#chat-content').append(`<div class="ask">${ask}</div>`);
-
-    try {
-        let result = await getAnswer(fetch_body);
-
-        let { response, error } = result;
-
-        if (error) {
-            $('#chat-content').append(`<div class="alert alert-warning" role="alert">${error}</div>`);
-        } else {//success
-            $('#chat-content').append(`<div class="answer">${response}</div>`);
-
-            $("#ask-content").val('');
-        }
-
-    } catch (err) {
-        $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
-    } finally {
-        $('#submit-ask').removeAttr('disabled');
-    }
-
 }
 
 //Using server-sent events
@@ -112,7 +51,7 @@ async function submitAskPolling() {
         let UUID = self.crypto.randomUUID();
         //console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
 
-        getAnswer(UUID, fetch_body);//first POST
+        prepareAnswer(UUID, fetch_body);//first POST
 
         let lastID = 0, polling = true;
 
@@ -186,7 +125,7 @@ async function submitAskPolling() {
     }
 }
 
-$('#submit-ask').on('click', submitAskPolling) //or $('#submit-ask').on('click', submitAskNormal)
+$('#submit-ask').on('click', submitAskPolling);
 
 //document is ready
 $(function () {
