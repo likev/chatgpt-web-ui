@@ -131,6 +131,6 @@ $('#submit-ask').on('click', submitAskPolling);
 $(function () {
     $('#chat-content').empty();
 
-    $("#ask-content").val('介绍一下你自己');
+    $("#ask-content").val('');
     //$('#submit-ask').trigger('click');
 })
