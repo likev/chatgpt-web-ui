@@ -50,27 +50,35 @@ async function submitAskPolling() {
         let reply = '';
 
         let UUID = randomUUID();
-        
+
         //console.log(UUID); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
 
         prepareAnswer(UUID, fetch_body);//first POST
 
-        let lastID = 0, polling = true;
+        let lastID = 0, lastIDtime = performance.now(), polling = true;
 
         setTimeout(_ => {//stop polling if no response after turnTimeout
             if (lastID === 0) polling = false;
         }, turnTimeout * 1000)
 
         while (polling) {
+            const nowTime = performance.now();
             try {
-                let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}/${lastID}?_t=${performance.now()}`, {
+                let f = await fetch(`${config['BINGAI-PROXY']}/${UUID}/${lastID}?_t=${nowTime}`, {
                     "mode": "cors"
                 });
 
                 let message = await f.json();
 
-                lastID = onmessage(message);
-                if (lastID === -1) polling = false;
+                const nextID = onmessage(message);
+                if (nextID > 0 && nextID === lastID && nowTime - lastIDtime > 10 * 1000) {
+                    polling = false; //no new token after 10s,maybe server Process timeout
+                } else if (nextID !== lastID) {
+                    lastID = nextID;
+                    lastIDtime = nowTime;
+                }
+
+                if (nextID < 0) polling = false; //error or result 
             } catch (e) {
                 polling = false;
             }
@@ -110,7 +118,7 @@ async function submitAskPolling() {
                 current_answer.html(`<div class="AdaptiveCards">${cardsHTML}</div>`);
 
                 $("#ask-content").val('');
-                return -1;
+                return -2;
             }
 
             console.log(message);
