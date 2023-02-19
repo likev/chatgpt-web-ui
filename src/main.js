@@ -11,7 +11,7 @@ window.$ = jquery;
 window.bootstrap = bootstrap;
 
 import config from './config';
-//import { fixedEncodeURIComponent, getUTCTimeStr } from "./utils"
+import { randomUUID } from "./utils"
 
 let promot = "";
 $('#select-ai-role').on('change', function () {
@@ -48,8 +48,10 @@ async function submitAskPolling() {
 
     try {
         let reply = '';
-        let UUID = self.crypto.randomUUID();
-        //console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+
+        let UUID = randomUUID;
+        
+        //console.log(UUID); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
 
         prepareAnswer(UUID, fetch_body);//first POST
 
