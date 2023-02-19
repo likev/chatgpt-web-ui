@@ -119,7 +119,7 @@ async function submitAskPolling() {
             return message.id;
         }
     } catch (err) {
-        $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！</div>`);
+        $('#chat-content').append(`<div class="alert alert-warning" role="alert">网络或服务器问题，请稍后重试！${JSON.stringify(err)}</div>`);
     } finally {
         $('#submit-ask').removeAttr('disabled');
     }
