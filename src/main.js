@@ -49,7 +49,7 @@ async function submitAskPolling() {
     try {
         let reply = '';
 
-        let UUID = randomUUID;
+        let UUID = randomUUID();
         
         //console.log(UUID); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
 
