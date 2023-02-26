@@ -19,7 +19,9 @@ $('#select-ai-role').on('change', function () {
 })
 
 let conversationInfo = {}, turnsCount = 0;
-const turnTimeout = 30, resetTurns = 5;//every 5 turns reset conversationInfo;
+const turnTimeout = 30,
+    resetTurns = 6, //every 6 turns reset conversationInfo
+    maxPollingErrors = 3; //timeout or network error
 
 function prepareAnswer(UUID, fetch_body) {
 
@@ -55,7 +57,7 @@ async function submitAskPolling() {
 
         prepareAnswer(UUID, fetch_body);//first POST
 
-        let lastID = 0, lastIDtime = performance.now(), polling = true;
+        let lastID = 0, lastIDtime = performance.now(), polling = true, pollingErrors = 0;
 
         setTimeout(_ => {//stop polling if no response after turnTimeout
             if (lastID === 0) polling = false;
@@ -78,9 +80,10 @@ async function submitAskPolling() {
                     lastIDtime = nowTime;
                 }
 
-                if (nextID < 0) polling = false; //error or result 
+                if (nextID < 0) polling = false; //server error or result event
             } catch (e) {
-                polling = false;
+                ++pollingErrors;
+                if (pollingErrors >= maxPollingErrors) polling = false;
             }
         }
 
