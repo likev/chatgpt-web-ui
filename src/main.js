@@ -32,6 +32,8 @@ function prepareAnswer(UUID, fetch_body) {
         "body": JSON.stringify({ ...conversationInfo, ...fetch_body }),
         "method": "POST",
         "mode": "cors"
+    }).catch(error => {
+        console.log("prepareAnswer Error:", error);
     });
 }
 
